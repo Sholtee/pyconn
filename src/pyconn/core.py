@@ -35,14 +35,13 @@ class ApiConnection:
         )
 
         with request.urlopen(req, timeout=self.timeout) as resp:
-            ct = (_getprop(resp.info(), 'content-type') or '').lower()
+            if resp.status != 200:
+                raise Exception(resp.msg)
 
-            if ct.startswith('text/html'):
-                raise Exception(resp.read())
-            elif ct == 'application/json':
-                data = json.loads(resp.read())
-            else:
+            if (ct := (_getprop(resp.info(), 'content-type') or '').lower()) != 'application/json':
                 raise Exception('Content type not supported: "{0}"'.format(ct))
+
+            data = json.loads(resp.read())
        
         if (exception := _getprop(data, 'exception')) is not None:
             raise RpcException(exception)
