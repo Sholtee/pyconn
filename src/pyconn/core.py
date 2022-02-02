@@ -47,7 +47,7 @@ class ApiConnection:
         if (exception := _getprop(data, 'exception')) is not None:
             raise RpcException(exception)
        
-        if (result := _getprop(data, 'result')) is not None and isinstance(result, dict):
+        if isinstance(result := _getprop(data, 'result'), dict):
             result = _as_namedtuple(result, '{0}Result'.format(module))
 
         return result
