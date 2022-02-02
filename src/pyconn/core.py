@@ -109,6 +109,6 @@ class ApiConnection:
             yield type(module, (object, ), typedescr)()
             
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     # This block will be invoked if the core.py module is being run directly (not via import)
     pass
