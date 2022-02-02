@@ -26,4 +26,4 @@ print(api.pi)
 try:
     api.parse_int('invalid')
 except RpcException as ex:
-    print(ex.args[0])
+    print(ex)

@@ -43,7 +43,7 @@ class ApiConnection:
 
             data = json.loads(resp.read())
        
-        if (exception := _getprop(data, 'exception')) is not None:
+        if exception := _getprop(data, 'exception'):
             raise RpcException(exception)
        
         if isinstance(result := _getprop(data, 'result'), dict):
