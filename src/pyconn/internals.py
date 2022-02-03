@@ -2,6 +2,7 @@
 # internals.py
 # Author: Denes Solti
 
+from array import array
 from collections import namedtuple
 
 def _getprop(data: dict, name: str) -> object:
@@ -14,11 +15,17 @@ def _getprop(data: dict, name: str) -> object:
             
     return None
 
-def _as_namedtuple(data: dict, name: str = None) -> tuple:
-    """Converts a dictionary to a named tuple"""
+def _replacedict(data: object, name: str = None) -> tuple:
+    """Replaces dict instances with a named tuples in the given object tree"""
 
-    for (key, val) in data.items():
-        if isinstance(val, dict):
-            data[key] = _as_namedtuple(val)
+    if isinstance(data, dict):
+        for (key, val) in data.items():
+            data[key] = _replacedict(val)
 
-    return namedtuple('NamedTuple_{0}'.format(id(data)) if not name else name, data.keys())(*data.values())
+        return namedtuple('NamedTuple_{0}'.format(id(data)) if not name else name, data.keys())(*data.values())
+
+    if isinstance(data, array):
+        for (i, val) in enumerate(data):
+            data[i] = _replacedict(val)
+    
+    return data

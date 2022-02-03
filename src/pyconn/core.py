@@ -9,7 +9,7 @@ from urllib import request
 from urllib.parse import urlencode
 
 from exceptions import RpcException
-from internals import _as_namedtuple, _getprop
+from internals import _replacedict, _getprop
 
 class ApiConnection:
     """Represents an API connection against an RPC.NET backend"""
@@ -46,10 +46,8 @@ class ApiConnection:
         if exception := _getprop(data, 'exception'):
             raise RpcException(exception)
        
-        if isinstance(result := _getprop(data, 'result'), dict):
-            result = _as_namedtuple(result, '{0}Result'.format(module))
-
-        return result
+        return _replacedict(_getprop(data, 'result'))
+        
 
     def create_api(self, schema: Union[str, dict]) -> Iterator[object]:
         """Creates a new API set according to the given schema
