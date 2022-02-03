@@ -2,22 +2,18 @@
 # __main__.py
 # Author: Denes Solti
 
-from os import path
+from os import path, makedirs
 from pathlib import Path
-from typing import Iterable
-from unittest import TestCase, TestSuite, TextTestRunner, defaultTestLoader
+from unittest import TestCase, defaultTestLoader
 from inspect import getmembers, isclass
 from glob import glob
-import sys
+from sys import modules
+from xmlrunner import XMLTestRunner
 
 if __name__ == '__main__':
     cwd = Path().resolve()
 
-    sys.path.append(
-        path.join(cwd, 'src')
-    )
-
-    def get_all_cases(dir: str) -> Iterable[object]:
+    def get_all_cases(dir: str) -> list[tuple]:
         for file in glob(path.join(cwd, 'tests', dir, '*.py')):
             module = '{0}.{1}'.format(
                 dir, 
@@ -30,12 +26,14 @@ if __name__ == '__main__':
             def istestcase(cls) -> bool:
                 return isclass(cls) and issubclass(cls, TestCase) and cls is not TestCase
 
-            for (_, cls) in getmembers(sys.modules[module], istestcase):
-                yield cls
-        
-    runner = TextTestRunner()
+            return getmembers(modules[module], istestcase)
 
-    for case in get_all_cases('unit'):
-        runner.run(
-            defaultTestLoader.loadTestsFromTestCase(case)
-        )
+    def run_tests(name: str):
+        for (name, case) in get_all_cases('unit'):
+            output = path.join(cwd, 'artifacts')
+            makedirs(output, exist_ok=True)
+            with open(path.join(output, '{0}.xml'.format(name)), 'wb') as output:
+                runner = XMLTestRunner(output)
+                runner.run(defaultTestLoader.loadTestsFromTestCase(case))
+
+    run_tests('unit')
