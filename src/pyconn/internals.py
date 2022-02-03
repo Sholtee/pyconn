@@ -14,18 +14,3 @@ def _getprop(data: dict, name: str) -> object:
             return value
             
     return None
-
-def _replacedict(data: object, name: str = None) -> tuple:
-    """Replaces dict instances with named tuples in the given object tree"""
-
-    if isinstance(data, dict):
-        for (key, val) in data.items():
-            data[key] = _replacedict(val)
-
-        return namedtuple('NamedTuple_{0}'.format(id(data)) if not name else name, data.keys())(*data.values())
-
-    if isinstance(data, array):
-        for (i, val) in enumerate(data):
-            data[i] = _replacedict(val)
-    
-    return data

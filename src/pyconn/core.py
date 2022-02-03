@@ -3,13 +3,14 @@
 # Author: Denes Solti
 
 from array import array
+from collections import namedtuple
 import json
 from typing import Iterator, Union
 from urllib import request
 from urllib.parse import urlencode
 
 from exceptions import RpcException
-from internals import _replacedict, _getprop
+from internals import _getprop
 
 class ApiConnection:
     """Represents an API connection against an RPC.NET backend"""
@@ -41,12 +42,16 @@ class ApiConnection:
             if (ct := (_getprop(resp.info(), 'content-type') or '').lower()) != 'application/json':
                 raise Exception('Content type not supported: "{0}"'.format(ct))
 
-            data = json.loads(resp.read())
+            def as_namedtuple(kvps: list[tuple]) -> tuple:
+                cls = namedtuple('NamedTuple_{0}'.format(id(kvps)), [k.lower() for (k, _) in kvps])
+                return cls(*[v for (_, v) in kvps])
+
+            data = json.loads(resp.read(), object_pairs_hook=as_namedtuple)
        
-        if exception := _getprop(data, 'exception'):
-            raise RpcException(exception)
+        if data.exception:
+            raise RpcException(data.exception)
        
-        return _replacedict(_getprop(data, 'result'))
+        return data.result
         
 
     def create_api(self, schema: Union[str, dict]) -> Iterator[object]:
