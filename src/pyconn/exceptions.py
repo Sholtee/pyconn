@@ -2,10 +2,10 @@
 # exceptions.py
 # Author: Denes Solti
 
-from collections import namedtuple
+from typing import NamedTuple
 
 class RpcException(Exception):
-    """The exception that is thrown if the Remote Procedure Call failed."""
-    def __init__(self, descriptor: namedtuple) -> None:
+    """The exception that is thrown if a Remote Procedure Call failed."""
+    def __init__(self, descriptor: NamedTuple) -> None:
         super().__init__(descriptor.message)
         self.data = descriptor.data
