@@ -2,16 +2,17 @@
 # __main__.py
 # Author: Denes Solti
 
-from os import path, makedirs
-from pathlib import Path
-from unittest import TestCase, defaultTestLoader
-from inspect import getmembers, isclass
+from contextlib import contextmanager
+from coverage import Coverage
 from glob import glob
+from inspect import getmembers, isclass
+from os import getcwd, makedirs, path
 from sys import modules
+from unittest import defaultTestLoader, TestCase
 from xmlrunner import XMLTestRunner
 
 if __name__ == '__main__':
-    cwd = Path().resolve()
+    cwd = getcwd()
 
     def get_all_cases(dir: str) -> list[tuple]:
         for file in glob(path.join(cwd, 'tests', dir, '*.py')):
@@ -36,4 +37,16 @@ if __name__ == '__main__':
                 runner = XMLTestRunner(output)
                 runner.run(defaultTestLoader.loadTestsFromTestCase(case))
 
-    run_tests('unit')
+    @contextmanager
+    def measure_coverage():
+        cov = Coverage(config_file='.coveragerc')
+        cov.start()
+
+        yield
+
+        cov.stop()
+        cov.save()
+        cov.lcov_report(outfile=path.join(cwd, 'artifacts', 'coverage.lcov'))
+
+    with measure_coverage():
+        run_tests('unit')
