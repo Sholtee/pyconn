@@ -15,16 +15,27 @@ def _snake_case(s: str) -> str:
         upper_chrs = set(string.ascii_uppercase)
         s_len = len(s)
 
-        previous_chr = None
-        for (i, c) in enumerate(s):
-            if c in upper_chrs and not previous_chr in upper_chrs and (i == s_len - 1 or not s[i + 1] in upper_chrs):
-                if (i > 0):
-                    yield "_"
-                yield c.lower()
-            else:
-                yield c
+        prev_is_upper = False
+        curr_is_upper = False
+        next_is_upper = s_len > 0 and s[0] in upper_chrs
 
-            previous_chr = c
+        for (i, c) in enumerate(s):
+            prev_is_upper = curr_is_upper
+            curr_is_upper = next_is_upper
+            next_is_upper = i < s_len - 1 and s[i + 1] in upper_chrs
+
+            if curr_is_upper and not prev_is_upper:
+                if i > 0:
+                    yield "_"
+                if not next_is_upper:
+                    yield c.lower()
+                    curr_is_upper = False
+                    continue
+
+            if not curr_is_upper and prev_is_upper:
+                yield "_"
+
+            yield c
 
     return ''.join(core())
 

@@ -13,8 +13,9 @@ class InternalsTests(TestCase):
         self.assertEqual(_snake_case('CicaMica'), 'cica_mica')
         self.assertEqual(_snake_case('cicaMica'), 'cica_mica')
         self.assertEqual(_snake_case('ABC'), 'ABC')
-        self.assertEqual(_snake_case('ABCd'), 'ABCd')
         self.assertEqual(_snake_case('PropB'), 'prop_b')
+        self.assertEqual(_snake_case('dABC'), 'd_ABC')
+        self.assertEqual(_snake_case('ABCd'), 'ABC_d')
 
     def test_load_json(self):
         val = _load_json('{"Prop": 1, "PropB": {"ValA": 1986}, "propC": [{"propD": "cica"}]}')
