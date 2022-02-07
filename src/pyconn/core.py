@@ -4,12 +4,13 @@
 
 from array import array
 import json
-from typing import Iterator, Union
-from urllib import request
+from types import FunctionType
+from typing import Any
+from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 
 from exceptions import RpcException
-from internals import _getprop, _load_json
+from internals import _load_json, _snake_case
 
 class ApiConnection:
     """Represents an API connection against an RPC.NET backend"""
@@ -27,18 +28,19 @@ class ApiConnection:
         if self.sessionid:
             query['sessionid'] = self.sessionid
 
-        req=request.Request(
+        req=Request(
             url = '{0}?{1}'.format(self.urlbase, urlencode(query)),
             data = json.dumps(args).encode(),
             method = 'POST',
             headers = {**self.headers, **{'content-type': 'application/json'}}
         )
 
-        with request.urlopen(req, timeout=self.timeout) as resp:
+        with urlopen(req, timeout=self.timeout) as resp:
             if resp.status != 200:
                 raise Exception(resp.msg)
 
-            if (ct := (_getprop(resp.info(), 'content-type') or '').lower()) != 'application/json':
+            # lookup is case insensitive, KeyError never raised
+            if (ct := (resp.headers['content-type'] or '').lower()) != 'application/json':
                 raise Exception('Content type not supported: "{0}"'.format(ct))
 
             data = _load_json(resp.read())
@@ -48,64 +50,54 @@ class ApiConnection:
        
         return data.result
         
-
-    def create_api(self, schema: Union[str, dict]) -> Iterator[object]:
+    def create_api(self, module: str, methods_id: str = 'Methods', props_id: str = 'Properties', prop_fmt: FunctionType = _snake_case) -> Any:
         """Creates a new API set according to the given schema
 
         A basic schema looks like:
 
         {
             "IServiceName": {
-                "methods": {
+                "Methods": {
                     "Method_1": {
-                        "alias": "method_1"
+                        "Layout": "TODO"
                     }
                 },
-                "properties": {
+                "Properties": {
                     "Prop_1": {
-                        "alias": "prop_1",
-                        "hasgetter": true,
-                        "hassetter": false
+                        "HasGetter": true,
+                        "HasSetter": false,
+                        "Layout": "TODO"
                     }
                 }
             }
         }
         """
 
-        if isinstance(schema, str):
-            with request.urlopen(schema) as resp:
-                schema = json.loads(resp.read())
+        with urlopen(Request('{0}?{1}'.format(self.urlbase, urlencode({'module': module})), method = 'GET'), timeout=self.timeout) as resp:
+            schema = _load_json(resp.read(), prop_fmt=None)
 
-        if not isinstance(schema, dict):
-            raise Exception('Malformed schema')
+        if not (module_descr := getattr(schema, module, None)):
+            raise Exception('Schema could not be found')
 
         # workaround to capture loop variables
         def lambda_factory(module, method):
             return lambda _, *args: self.invoke(module, method, [*args])
 
-        for (module, module_descr) in schema.items():
-            typedescr = {'_conn': self}
+        typedescr = {'_conn': self}
+    
+        for method in getattr(module_descr, methods_id)._fields:
+            typedescr[_snake_case(method)] = lambda_factory(module, method)
         
-            if isinstance(methods := _getprop(module_descr, 'methods'), dict):
-                for (method, method_descr) in methods.items():
-                    if not isinstance(method_descr, dict):
-                        raise Exception('Invalid method descriptor: {0}'.format(method_descr))
+        for prop in (props := getattr(module_descr, props_id))._fields:
+            prop_descr = getattr(props, prop)
 
-                    typedescr[_getprop(method_descr, 'alias') or method] = lambda_factory(module, method)
+            typedescr[_snake_case(prop)] = property(
+                lambda_factory(module, 'get_{0}'.format(prop)) if prop_descr.HasGetter else None,
+                lambda_factory(module, 'set_{0}'.format(prop)) if prop_descr.HasSetter else None
+            )
+
+        return type(module, (object, ), typedescr)()
             
-            if isinstance(props := _getprop(module_descr, 'properties'), dict):
-                for (prop, prop_descr) in props.items():
-                    if not isinstance(prop_descr, dict):
-                        raise Exception('Invalid property descriptor: {0}'.format(prop_descr))
-
-                    typedescr[_getprop(prop_descr, 'alias') or prop] = property(
-                        lambda_factory(module, 'get_{0}'.format(prop)) if _getprop(prop_descr, 'hasgetter') else None,
-                        lambda_factory(module, 'set_{0}'.format(prop)) if _getprop(prop_descr, 'hassetter') else None
-                    )
-
-            yield type(module, (object, ), typedescr)()
-            
-
 if __name__ == '__main__':
     # This block will be invoked if the core.py module is being run directly (not via import)
     pass

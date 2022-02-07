@@ -4,22 +4,17 @@
 
 from unittest import TestCase
 
-from pyconn.internals import _getprop, _load_json, _snake_case
+from pyconn.internals import _load_json, _snake_case
 
 class InternalsTests(TestCase):
-    def test_getprop_caseinsensitivity(self):
-        dict = {'cica': 'mica'}
-        self.assertEqual(_getprop(dict, 'CICA'), 'mica')
-        self.assertEqual(_getprop(dict, 'cica'), 'mica')
-
-    def test_getprop_ifnomatch(self):
-        self.assertEqual(_getprop({}, 'x'), None)
-
     def test_snake_case(self):
         self.assertEqual(_snake_case('cica'), 'cica')
         self.assertEqual(_snake_case('Cica'), 'cica')
         self.assertEqual(_snake_case('CicaMica'), 'cica_mica')
         self.assertEqual(_snake_case('cicaMica'), 'cica_mica')
+        self.assertEqual(_snake_case('ABC'), 'ABC')
+        self.assertEqual(_snake_case('ABCd'), 'ABCd')
+        self.assertEqual(_snake_case('PropB'), 'prop_b')
 
     def test_load_json(self):
         val = _load_json('{"Prop": 1, "PropB": {"ValA": 1986}, "propC": [{"propD": "cica"}]}')
