@@ -8,6 +8,8 @@ from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 import core
+from core import ApiConnection
+from exceptions import RpcException
 
 class ApiConnectionTests(TestCase):
     @patch('urllib.request.urlopen')
@@ -19,7 +21,6 @@ class ApiConnectionTests(TestCase):
         mock_urlopen.return_value = mock_response
 
         reload(core)
-        from core import ApiConnection
 
         conn = ApiConnection('http://localhost:1986/api')
         
@@ -36,7 +37,6 @@ class ApiConnectionTests(TestCase):
         mock_urlopen.return_value = mock_response
 
         reload(core)
-        from core import ApiConnection
 
         conn = ApiConnection('http://localhost:1986/api')
         
@@ -54,7 +54,6 @@ class ApiConnectionTests(TestCase):
         mock_urlopen.return_value = mock_response
 
         reload(core)
-        from core import ApiConnection
 
         conn = ApiConnection('http://localhost:1986/api')
         conn.sessionid = 'cica'
@@ -73,8 +72,6 @@ class ApiConnectionTests(TestCase):
         mock_urlopen.return_value = mock_response
 
         reload(core)
-        from core import ApiConnection
-        from exceptions import RpcException
 
         conn = ApiConnection('http://localhost:1986/api')
         
@@ -92,7 +89,6 @@ class ApiConnectionTests(TestCase):
         mock_urlopen.return_value = mock_response
 
         reload(core)
-        from core import ApiConnection
 
         conn = ApiConnection('http://localhost:1986/api')
         conn.sessionid = 'cica'
