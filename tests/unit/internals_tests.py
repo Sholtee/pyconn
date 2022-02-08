@@ -2,7 +2,7 @@
 # internals.py
 # Author: Denes Solti
 
-from unittest import TestCase
+from unittest import TestCase, TextTestRunner, defaultTestLoader
 
 from internals import _load_json, _snake_case
 
@@ -17,3 +17,7 @@ class InternalsTests(TestCase):
         self.assertEqual(val.prop, 1)
         self.assertEqual(val.prop_b.val_a, 1986)
         self.assertEqual(val.prop_c[0].prop_d, 'cica')
+
+if __name__ == '__main__':
+    runner = TextTestRunner()
+    runner.run(defaultTestLoader.loadTestsFromTestCase(InternalsTests))

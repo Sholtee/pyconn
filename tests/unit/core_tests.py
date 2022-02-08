@@ -4,11 +4,10 @@
 
 from importlib import reload
 from turtle import st
-from unittest import TestCase
+from unittest import TestCase, TextTestRunner, defaultTestLoader
 from unittest.mock import MagicMock, patch
 
 import core
-from core import ApiConnection
 from exceptions import RpcException
 
 class ApiConnectionTests(TestCase):
@@ -22,7 +21,7 @@ class ApiConnectionTests(TestCase):
 
         reload(core)
 
-        conn = ApiConnection('http://localhost:1986/api')
+        conn = core.ApiConnection('http://localhost:1986/api')
         
         with self.assertRaises(Exception) as error:
             conn.invoke('IModule', 'Method', [])
@@ -38,7 +37,7 @@ class ApiConnectionTests(TestCase):
 
         reload(core)
 
-        conn = ApiConnection('http://localhost:1986/api')
+        conn = core.ApiConnection('http://localhost:1986/api')
         
         with self.assertRaises(Exception) as error:
             conn.invoke('IModule', 'Method', [])
@@ -55,7 +54,7 @@ class ApiConnectionTests(TestCase):
 
         reload(core)
 
-        conn = ApiConnection('http://localhost:1986/api')
+        conn = core.ApiConnection('http://localhost:1986/api')
         conn.sessionid = 'cica'
         conn.invoke('IModule', 'Method', [])
 
@@ -73,7 +72,7 @@ class ApiConnectionTests(TestCase):
 
         reload(core)
 
-        conn = ApiConnection('http://localhost:1986/api')
+        conn = core.ApiConnection('http://localhost:1986/api')
         
         with self.assertRaises(RpcException) as error:
             conn.invoke('IModule', 'Method', [])
@@ -90,6 +89,10 @@ class ApiConnectionTests(TestCase):
 
         reload(core)
 
-        conn = ApiConnection('http://localhost:1986/api')
+        conn = core.ApiConnection('http://localhost:1986/api')
         conn.sessionid = 'cica'
         self.assertEqual(conn.invoke('IModule', 'Method', []), 3)
+
+if __name__ == '__main__':
+    runner = TextTestRunner()
+    runner.run(defaultTestLoader.loadTestsFromTestCase(ApiConnectionTests))
