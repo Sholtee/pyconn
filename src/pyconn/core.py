@@ -50,7 +50,7 @@ class ApiConnection:
        
         return data.result
         
-    def create_api(self, module: str, methods_id: str = 'Methods', props_id: str = 'Properties', prop_fmt: FunctionType = _snake_case) -> Any:
+    def create_api(self, module: str, methods_id: str = 'Methods', props_id: str = 'Properties', fmt: FunctionType = _snake_case) -> Any:
         """Creates a new API set according to the given schema
 
         A basic schema looks like:
@@ -86,18 +86,14 @@ class ApiConnection:
         typedescr = {'_conn': self}
     
         for method in getattr(module_descr, methods_id)._fields:
-            typedescr[_snake_case(method)] = lambda_factory(module, method)
+            typedescr[fmt(method)] = lambda_factory(module, method)
         
         for prop in (props := getattr(module_descr, props_id))._fields:
             prop_descr = getattr(props, prop)
 
-            typedescr[_snake_case(prop)] = property(
+            typedescr[fmt(prop)] = property(
                 lambda_factory(module, 'get_{0}'.format(prop)) if prop_descr.HasGetter else None,
                 lambda_factory(module, 'set_{0}'.format(prop)) if prop_descr.HasSetter else None
             )
 
         return type(module, (object, ), typedescr)()
-            
-if __name__ == '__main__':
-    # This block will be invoked if the core.py module is being run directly (not via import)
-    pass
