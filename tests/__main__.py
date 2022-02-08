@@ -28,7 +28,7 @@ if __name__ == '__main__':
             return getmembers(modules[module], istestcase)
 
     def run_tests(name: str):
-        for (name, case) in get_all_cases('unit'):
+        for (name, case) in get_all_cases(name):
             output = path.join(cwd, 'artifacts')
             makedirs(output, exist_ok=True)
             with open(path.join(output, '{0}.xml'.format(name)), 'wb') as output:
