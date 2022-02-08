@@ -1,0 +1,1 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/s72x2yl2lu9cs09h/branch/main?svg=true)](https://ci.appveyor.com/project/Sholtee/pyconn/branch/main) ![AppVeyor tests](https://img.shields.io/appveyor/tests/sholtee/pyconn/master)
