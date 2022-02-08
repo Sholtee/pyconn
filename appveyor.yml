@@ -14,7 +14,7 @@ environment:
     secure: IvxSZoWD+DpqNjUP7mFjPA==
   COVERALLS_REPO_TOKEN:
     secure: CDOE0Xkqvh8MlC9FBj3tyXEvRYPGleKUctnzlosfIjEKlV4W0vl4++b1WOkDy3f5
-  PYTHONPATH: src;vendor;tests
+  PYTHONPATH: src/pyconn;vendor;tests
 
 build: off
 
