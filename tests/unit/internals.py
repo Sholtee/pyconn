@@ -4,7 +4,7 @@
 
 from unittest import TestCase
 
-from pyconn.internals import _load_json, _snake_case
+from internals import _load_json, _snake_case
 
 class InternalsTests(TestCase):
     def test_snake_case(self):
