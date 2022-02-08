@@ -1,6 +1,6 @@
 [run]
 source =
-    pyconn
+    src
 omit =
     /tests/*
     /vendor/*
