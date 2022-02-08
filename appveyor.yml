@@ -12,6 +12,8 @@ image: Visual Studio 2019
 environment:
   APPVEYOR_RDP_PASSWORD:
     secure: IvxSZoWD+DpqNjUP7mFjPA==
+  COVERALLS_REPO_TOKEN:
+    secure: CDOE0Xkqvh8MlC9FBj3tyXEvRYPGleKUctnzlosfIjEKlV4W0vl4++b1WOkDy3f5
   PYTHONPATH: src;vendor;tests
 
 build: off
@@ -32,7 +34,7 @@ before_test:
 test_script:
   - cmd: |
       python -m coverage run -m tests
-      python -m coverage report
+      python -m coveralls
 
 after_test:
  - ps: |
