@@ -27,10 +27,12 @@ init:
 #     IEX ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 before_test:
-  - cmd: pip install -r "requirements.txt" -t "vendor" --no-user --disable-pip-version-check
+  - cmd: pip install -r "test_requirements.txt" -t "vendor" --no-user --disable-pip-version-check
 
 test_script:
-  - cmd: python -m tests
+  - cmd: |
+      python -m coverage run -m tests
+      python -m coverage report
 
 after_test:
  - ps: |

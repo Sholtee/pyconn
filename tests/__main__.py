@@ -2,8 +2,6 @@
 # __main__.py
 # Author: Denes Solti
 
-from contextlib import contextmanager
-from coverage import Coverage
 from glob import glob
 from inspect import getmembers, isclass
 from os import getcwd, makedirs, path
@@ -37,16 +35,4 @@ if __name__ == '__main__':
                 runner = XMLTestRunner(output)
                 runner.run(defaultTestLoader.loadTestsFromTestCase(case))
 
-    @contextmanager
-    def measure_coverage():
-        cov = Coverage(config_file='.coveragerc')
-        cov.start()
-
-        yield
-
-        cov.stop()
-        cov.save()
-        cov.lcov_report(outfile=path.join(cwd, 'artifacts', 'coverage.lcov'))
-
-    with measure_coverage():
-        run_tests('unit')
+    run_tests('unit')
