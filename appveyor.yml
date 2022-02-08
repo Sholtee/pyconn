@@ -24,7 +24,7 @@ clone_script:
 init:
   - ps: |
       $ErrorActionPreference = "Stop"
-#     IEX ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+      IEX ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 before_test:
   - ps: pip install -r "requirements.txt" -t "vendor" --no-user --disable-pip-version-check
@@ -44,4 +44,4 @@ after_test:
 
 on_finish:
   - ps: |
-#     $blockRdp = $true; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+      $blockRdp = $true; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
