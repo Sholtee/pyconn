@@ -6,13 +6,14 @@ from glob import glob
 from inspect import getmembers, isclass
 from os import getcwd, makedirs, path
 from sys import modules
+from typing import Iterable
 from unittest import defaultTestLoader, TestCase
 from xmlrunner import XMLTestRunner
 
 if __name__ == '__main__':
     cwd = getcwd()
 
-    def get_all_cases(dir: str) -> list[tuple]:
+    def get_all_cases(dir: str) -> Iterable[tuple]:
         for file in glob(path.join(cwd, 'tests', dir, '*.py')):
             module = '{0}.{1}'.format(
                 dir, 
@@ -25,7 +26,8 @@ if __name__ == '__main__':
             def istestcase(cls) -> bool:
                 return isclass(cls) and issubclass(cls, TestCase) and cls is not TestCase
 
-            return getmembers(modules[module], istestcase)
+            for (name, case) in getmembers(modules[module], istestcase):
+                yield (name, case)
 
     def run_tests(name: str):
         for (name, case) in get_all_cases(name):
