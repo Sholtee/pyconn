@@ -1,3 +1,5 @@
+""" Contains the `RpcException` class """
+
 # RPC.NET-Connector
 # exceptions.py
 # Author: Denes Solti
