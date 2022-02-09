@@ -28,8 +28,14 @@ init:
       $ErrorActionPreference = "Stop"
 #     IEX ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
+before_build:
+  - cmd: pip install -r "build_requirements.txt" -t "vendor" --upgrade --no-user --disable-pip-version-check
+
+build_script:
+    - cmd: python -m pylint ./src
+
 before_test:
-  - cmd: pip install -r "test_requirements.txt" -t "vendor" --no-user --disable-pip-version-check
+  - cmd: pip install -r "test_requirements.txt" -t "vendor" --upgrade --no-user --disable-pip-version-check
 
 test_script:
   - cmd: |
