@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 if __name__ == '__main__':
     from setuptools import setup
 
@@ -11,5 +12,5 @@ if __name__ == '__main__':
         url='https://github.com/Sholtee/pyconn',
         package_dir={'': 'src'},
         packages=['pyconn'],
-        python_requires='>=3.9',
+        python_requires='>=3.9'
     )

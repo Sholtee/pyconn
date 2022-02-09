@@ -68,9 +68,10 @@ class ApiConnectionTests(TestCase):
         (req,) = mock_urlopen.call_args[0]
         self.assertEqual(req.full_url, 'http://localhost:1986/api?module=IModule&method=Method&sessionid=cica')
 
-    # pylint: disable=invalid-name
     @patch('urllib.request.urlopen')
     def test_invoke_should_throw_RpcException_in_case_of_remote_exception(self, mock_urlopen):
+        # pylint: disable-next=invalid-name
+
         mock_response = MagicMock()
         mock_response.status = 200
         mock_response.headers = {'content-type': 'application/json'}
@@ -131,6 +132,8 @@ class ApiConnectionTests(TestCase):
         conn = core.ApiConnection('http://localhost:1986/api')
         api = conn.create_api('IModule')
         self.assertTrue(hasattr(api, 'method_a'))
+
+        #pylint: disable-next=no-member
         self.assertIsInstance(api.method_a, MethodType)
 
     @patch('urllib.request.urlopen')

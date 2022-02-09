@@ -13,10 +13,11 @@ from unittest import TestCase, TextTestRunner, defaultTestLoader
 from core import ApiConnection
 from exceptions import RpcException
 
-#pylint: disable=missing-class-docstring, missing-function-docstring, no-member
+#pylint: disable=missing-class-docstring, missing-function-docstring
 class IntergrationTests(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        # pylint: disable-next=consider-using-with
         cls._proc = Popen([path.join(getcwd(), '.tmp', 'backend', 'Solti.Utils.Rpc.Server.Sample.exe')], stdout=PIPE, creationflags=CREATE_NEW_CONSOLE)
         for line in TextIOWrapper(cls._proc.stdout, encoding="utf-8"):
             if line.startswith('Server is running'):
@@ -27,6 +28,7 @@ class IntergrationTests(TestCase):
         cls._proc.terminate()
 
     def test_api(self):
+        # pylint: disable=no-member
         api = ApiConnection('http://localhost:1986/api').create_api('ICalculator')
         self.assertEqual(api.add(1, 2), 3)
         self.assertEqual(api.parse_int('1986'), 1986)
