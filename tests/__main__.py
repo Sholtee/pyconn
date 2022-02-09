@@ -38,3 +38,4 @@ if __name__ == '__main__':
                 runner.run(defaultTestLoader.loadTestsFromTestCase(case))
 
     run_tests('unit')
+    run_tests('integration')
