@@ -5,8 +5,7 @@
 from collections import namedtuple
 import json
 import string
-from types import FunctionType
-from typing import Iterable
+from typing import Callable, Iterable
 
 def _snake_case(s: str) -> str:
     """Converts the given string to 'snake_case'"""
@@ -39,7 +38,7 @@ def _snake_case(s: str) -> str:
 
     return ''.join(core())
 
-def _load_json(s: str, prop_fmt: FunctionType = _snake_case) -> tuple:
+def _load_json(s: str, prop_fmt: Callable[[str], str] = _snake_case) -> tuple:
     """Loads the given JSON string. If the string represents an object a ``NamedTuple`` is returned."""
 
     def as_namedtuple(kvps: list[tuple]) -> tuple:

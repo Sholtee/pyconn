@@ -4,8 +4,7 @@
 
 from array import array
 import json
-from types import FunctionType
-from typing import Any
+from typing import Any, Callable
 from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 
@@ -50,7 +49,7 @@ class ApiConnection:
        
         return data.result
         
-    def create_api(self, module: str, methods_id: str = 'Methods', props_id: str = 'Properties', fmt: FunctionType = _snake_case) -> Any:
+    def create_api(self, module: str, methods_id: str = 'Methods', props_id: str = 'Properties', fmt: Callable[[str], str] = _snake_case) -> Any:
         """Creates a new API set according to the given schema
 
         A basic schema looks like:
