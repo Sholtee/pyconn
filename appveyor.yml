@@ -32,7 +32,7 @@ install:
   - cmd: pip install -r "build_requirements.txt" -r "test_requirements.txt" -t "vendor" --no-user --disable-pip-version-check
 
 build_script:
-    - cmd: python -m pylint ./src
+    - cmd: python -m pylint (git ls-files '*.py')
 
 test_script:
   - cmd: |
