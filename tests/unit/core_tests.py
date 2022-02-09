@@ -11,6 +11,10 @@ import core
 from exceptions import RpcException
 
 class ApiConnectionTests(TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        reload(core)
+
     @patch('urllib.request.urlopen')
     def test_invoke_should_throw_on_invalid_status(self, mock_urlopen):
         mock_response = MagicMock()
