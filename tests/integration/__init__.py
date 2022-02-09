@@ -1,3 +1,5 @@
+""" Initializes the `integration` module by unpacking the test server binaries """
+
 # RPC.NET-Connector integration tests
 # __init__.py
 # Author: Denes Solti

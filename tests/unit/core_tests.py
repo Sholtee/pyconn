@@ -1,5 +1,7 @@
+""" Contains tests against the `core` module """
+
 # RPC.NET-Connector tests
-# core.py
+# core_tests.py
 # Author: Denes Solti
 
 from importlib import reload
@@ -10,6 +12,7 @@ from unittest.mock import MagicMock, patch
 import core
 from exceptions import RpcException
 
+# pylint: disable=missing-class-docstring, missing-function-docstring
 class ApiConnectionTests(TestCase):
     @classmethod
     def tearDownClass(cls):
@@ -26,7 +29,7 @@ class ApiConnectionTests(TestCase):
         reload(core)
 
         conn = core.ApiConnection('http://localhost:1986/api')
-        
+
         with self.assertRaises(Exception) as error:
             conn.invoke('IModule', 'Method', [])
         self.assertEqual(str(error.exception), 'Error message')
@@ -42,7 +45,7 @@ class ApiConnectionTests(TestCase):
         reload(core)
 
         conn = core.ApiConnection('http://localhost:1986/api')
-        
+
         with self.assertRaises(Exception) as error:
             conn.invoke('IModule', 'Method', [])
         self.assertEqual(str(error.exception), 'Content type not supported: "wrong"')
@@ -65,6 +68,7 @@ class ApiConnectionTests(TestCase):
         (req,) = mock_urlopen.call_args[0]
         self.assertEqual(req.full_url, 'http://localhost:1986/api?module=IModule&method=Method&sessionid=cica')
 
+    # pylint: disable=invalid-name
     @patch('urllib.request.urlopen')
     def test_invoke_should_throw_RpcException_in_case_of_remote_exception(self, mock_urlopen):
         mock_response = MagicMock()
@@ -77,7 +81,7 @@ class ApiConnectionTests(TestCase):
         reload(core)
 
         conn = core.ApiConnection('http://localhost:1986/api')
-        
+
         with self.assertRaises(RpcException) as error:
             conn.invoke('IModule', 'Method', [])
         self.assertEqual(str(error.exception), 'cica')

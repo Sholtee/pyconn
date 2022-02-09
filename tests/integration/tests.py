@@ -1,3 +1,5 @@
+""" Contains the integration testing relatated cases. """
+
 # RPC.NET-Connector integration tests
 # tests.py
 # Author: Denes Solti
@@ -11,6 +13,7 @@ from unittest import TestCase, TextTestRunner, defaultTestLoader
 from core import ApiConnection
 from exceptions import RpcException
 
+#pylint: disable=missing-class-docstring, missing-function-docstring, no-member
 class IntergrationTests(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -28,7 +31,7 @@ class IntergrationTests(TestCase):
         self.assertEqual(api.add(1, 2), 3)
         self.assertEqual(api.parse_int('1986'), 1986)
         self.assertAlmostEqual(api.PI, pi)
-        with self.assertRaises(Exception) as error:
+        with self.assertRaises(RpcException) as error:
             api.parse_int('invalid')
         self.assertEqual(str(error.exception), 'Input string was not in a correct format.')
 
