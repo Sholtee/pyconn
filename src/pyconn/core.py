@@ -13,14 +13,21 @@ from urllib.parse import urlencode
 from exceptions import RpcException
 from internals import _load_json, _snake_case
 
+# pylint: disable-next=too-many-instance-attributes
 class ApiConnection:
     """Represents an API connection against an RPC.NET backend"""
 
-    def __init__(self, urlbase: str) -> None:
-        self.urlbase = urlbase
+    def __init__(self, urlbase: str, property_fmt: Callable[[str], str] = _snake_case) -> None:
         self.headers = {}
         self.timeout = 10
         self.sessionid = None
+
+        self.__urlbase = urlbase
+        self.__result_fld = property_fmt('Result')
+        self.__exception_fld = property_fmt('Exception')
+        self.__exception_msg_fld = property_fmt('Message')
+        self.__exception_dta_fld = property_fmt('Data')
+        self.__property_fmt = property_fmt
 
     def invoke(self, module: str, method: str, args: array = None) -> tuple:
         """Invokes a remote API identified by a module and method name"""
@@ -33,7 +40,7 @@ class ApiConnection:
             query['sessionid'] = self.sessionid
 
         req=Request(
-            url = f'{self.urlbase}?{urlencode(query)}',
+            url = f'{self.__urlbase}?{urlencode(query)}',
             data = json.dumps(args).encode(),
             method = 'POST',
             headers = {**self.headers, **{'content-type': 'application/json'}}
@@ -47,14 +54,14 @@ class ApiConnection:
             if (content_type := (resp.headers['content-type'] or '').lower()) != 'application/json':
                 raise Exception(f'Content type not supported: "{content_type}"')
 
-            data = _load_json(resp.read())
+            data = _load_json(resp.read(), self.__property_fmt)
 
-        if data.exception:
-            raise RpcException(data.exception)
+        if (exception := getattr(data, self.__exception_fld)):
+            raise RpcException(getattr(exception, self.__exception_msg_fld), getattr(exception, self.__exception_dta_fld))
 
-        return data.result
+        return getattr(data, self.__result_fld)
 
-    def create_api(self, module: str, methods_id: str = 'Methods', props_id: str = 'Properties', fmt: Callable[[str], str] = _snake_case) -> Any:
+    def create_api(self, module: str) -> Any:
         """Creates a new API set according to the given schema
 
         A basic schema looks like:
@@ -77,7 +84,8 @@ class ApiConnection:
         }
         """
 
-        with urlopen(Request(f'{self.urlbase}?{urlencode({"module": module})}', method = 'GET'), timeout=self.timeout) as resp:
+        with urlopen(Request(f'{self.__urlbase}?{urlencode({"module": module})}', method = 'GET'), timeout=self.timeout) as resp:
+            # don't use prop_fmt so the method and property names remain untouched
             schema = _load_json(resp.read(), prop_fmt=None)
 
         if not (module_descr := getattr(schema, module, None)):
@@ -89,13 +97,13 @@ class ApiConnection:
 
         typedescr = {'_conn': self}
 
-        for method in getattr(module_descr, methods_id)._fields:
-            typedescr[fmt(method)] = lambda_factory(module, method)
+        for method in module_descr.Methods._fields:
+            typedescr[self.__property_fmt(method)] = lambda_factory(module, method)
 
-        for prop in (props := getattr(module_descr, props_id))._fields:
+        for prop in (props := module_descr.Properties)._fields:
             prop_descr = getattr(props, prop)
 
-            typedescr[fmt(prop)] = property(
+            typedescr[self.__property_fmt(prop)] = property(
                 lambda_factory(module, f'get_{prop}') if prop_descr.HasGetter else None,
                 lambda_factory(module, f'set_{prop}') if prop_descr.HasSetter else None
             )
