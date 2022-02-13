@@ -29,7 +29,7 @@ class ApiConnection:
         self.__exception_dta_fld = property_fmt('Data')
         self.__property_fmt = property_fmt
 
-    def __fetch_json(self, req: Request, prop_fmt: Callable[[str], str]) -> tuple:
+    def __fetch_json(self, req: Request, format_output: bool) -> tuple:
         with urlopen(req, timeout=self.timeout) as resp:
             if resp.status != 200:
                 raise Exception(resp.read() or resp.msg)
@@ -38,7 +38,7 @@ class ApiConnection:
             if (content_type := (resp.headers['content-type'] or '').lower()) != 'application/json':
                 raise Exception(f'Content type not supported: "{content_type}"')
 
-            return _load_json(resp.read(), prop_fmt)
+            return _load_json(resp.read(), self.__property_fmt if format_output else None)
 
     def invoke(self, module: str, method: str, args: array = None) -> tuple:
         """Invokes a remote API identified by a module and method name"""
@@ -57,7 +57,7 @@ class ApiConnection:
             headers = {**self.headers, **{'content-type': 'application/json'}}
         )
 
-        data = self.__fetch_json(req, prop_fmt=self.__property_fmt)
+        data = self.__fetch_json(req, format_output=True)
 
         if (exception := getattr(data, self.__exception_fld)):
             raise RpcException(getattr(exception, self.__exception_msg_fld), getattr(exception, self.__exception_dta_fld))
@@ -86,8 +86,9 @@ class ApiConnection:
             }
         }
         """
-        # don't use prop_fmt so the method and property names remain untouched
-        schema = self.__fetch_json(Request(f'{self.__urlbase}?{urlencode({"module": module})}', method = 'GET'), prop_fmt=None)
+
+        # don't format the output so the method and property names remain untouched
+        schema = self.__fetch_json(Request(f'{self.__urlbase}?{urlencode({"module": module})}', method = 'GET'), format_output=False)
 
         if not (module_descr := getattr(schema, module, None)):
             raise Exception('Schema could not be found')
