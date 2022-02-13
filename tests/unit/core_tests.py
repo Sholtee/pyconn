@@ -22,7 +22,7 @@ class ApiConnectionTests(TestCase):
     def test_invoke_should_throw_on_invalid_status(self, mock_urlopen):
         mock_response = MagicMock()
         mock_response.status = 500
-        mock_response.msg = 'Error message'
+        mock_response.read.return_value = 'Error message'
         mock_response.__enter__.return_value = mock_response
         mock_urlopen.return_value = mock_response
 
